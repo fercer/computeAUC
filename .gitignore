@@ -1,0 +1,8 @@
+*.pyd
+*.dll
+*.exp
+*.lib
+*.exe
+*.pyc
+*.png
+*.bin
