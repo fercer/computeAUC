@@ -22,35 +22,59 @@ None
 	#include <numpy/ndarraytypes.h>
 	#include <numpy/ufuncobject.h>
 	#include <numpy/npy_3kcompat.h>
-	#define COMPUTEAUCROC_DLL 
+    #define COMPUTEAUCROC_DLL_PUBLIC
+    #define COMPUTEAUCROC_DLL_LOCAL 
 #else
 	#if defined(_WIN32) || defined(_WIN64)
 		#ifdef BUILDING_COMPUTEAUCROC_DLL
-			#define COMPUTEAUCROC_DLL __declspec(dllexport)
-		#else
-			#define COMPUTEAUCROC_DLL __declspec(dllimport)
-		#endif
+            #ifdef __GNUC__
+                #define COMPUTEAUCROC_DLL_PUBLIC __attribute__ ((dllexport))
+            #else
+                #define COMPUTEAUCROC_DLL_PUBLIC __declspec(dllexport)
+            #endif
+        #else
+            #ifdef __GNUC__
+                #define COMPUTEAUCROC_DLL_PUBLIC __attribute__ ((dllimport))
+            #else
+                #define COMPUTEAUCROC_DLL_PUBLIC __declspec(dllimport)
+            #endif
+        #endif
+        #define COMPUTEAUCROC_DLL_LOCAL
 	#else
-		#define COMPUTEAUCROC_DLL 
+		#if __GNUC__ >= 4
+            #define COMPUTEAUCROC_DLL_PUBLIC __attribute__ ((visibility ("default")))
+            #define COMPUTEAUCROC_DLL_LOCAL  __attribute__ ((visibility ("hidden")))
+        #else
+            #define COMPUTEAUCROC_DLL_PUBLIC
+            #define COMPUTEAUCROC_DLL_LOCAL
+        #endif
 	#endif
 #endif
 
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifndef NDEBUG
+#define DEBMSG(MESSAGE) printf(MESSAGE)
+#define DEBNUMMSG(MESSAGE, NUM) printf(MESSAGE, NUM);
+#else
+#define DEBMSG(MESSAGE) 
+#define DEBNUMMSG(MESSAGE, NUM) 
+#endif
+
 typedef struct roc_pair
 {
 	double classification_response;
-	char ground_truth_class;
+	double ground_truth_class;
 } roc_pair;
 
 
 int compROCpairs(const void * pair_a_ptr, const void * pair_b_ptr);
 
-double COMPUTEAUCROC_DLL aucROC_impl(double * img_src, char * groundtruth, const unsigned int height, const unsigned int width, const unsigned int n_imgs);
-double COMPUTEAUCROC_DLL aucROCsavefile_impl(double * img_src, char * groundtruth, const unsigned int height, const unsigned int width, const unsigned int n_imgs, const char * filename);
-double COMPUTEAUCROC_DLL aucROCmasked_impl(double * img_src, char * groundtruth, char * mask, const unsigned int height, const unsigned int width, const unsigned int n_imgs);
-double COMPUTEAUCROC_DLL aucROCmaskedsavefile_impl(double * img_src, char * groundtruth, char * mask, const unsigned int height, const unsigned int width, const unsigned int n_imgs, const char * filename);
+double COMPUTEAUCROC_DLL_PUBLIC aucROC_impl(double * img_src, double * groundtruth, const unsigned int height, const unsigned int width, const unsigned int n_imgs);
+double COMPUTEAUCROC_DLL_PUBLIC aucROCsavefile_impl(double * img_src, double * groundtruth, const unsigned int height, const unsigned int width, const unsigned int n_imgs, const char * filename);
+double COMPUTEAUCROC_DLL_PUBLIC aucROCmasked_impl(double * img_src, double * groundtruth, char * mask, const unsigned int height, const unsigned int width, const unsigned int n_imgs);
+double COMPUTEAUCROC_DLL_PUBLIC aucROCmaskedsavefile_impl(double * img_src, double * groundtruth, char * mask, const unsigned int height, const unsigned int width, const unsigned int n_imgs, const char * filename);
 
 #ifdef BUILDING_PYTHON_MODULE
 static PyObject* aucROC(PyObject *self, PyObject *args);

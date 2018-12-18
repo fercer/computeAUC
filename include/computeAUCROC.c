@@ -33,27 +33,12 @@ int compROCpairs(const void * pair_a_ptr, const void * pair_b_ptr)
 
 
 
-/************************************************************************************************************
-* FUNCTION NAME: aucROC_impl
-*
-* PURPOSE: Compute the area under the ROC curve for the multiclass classifier 'img_src' and the 'groundtruth'.
-*
-* ARGUMENTS:
-* ARGUMENT                  TYPE                      I/O  DESCRIPTION
-* img_src                   double *                   I   Source multiclass classifier
-* groundtruth               char *                     I   Ground-truth
-* height                    const int                  I   Height of the source image
-* width                     const int                  I   Width of the source image
-*
-* RETURNS:
-* The area under the ROC curve copmputed with the trapezium method of integration
-*
-************************************************************************************************************/
-double aucROC_impl(double * img_src, char * groundtruth, const unsigned int height, const unsigned int width, const unsigned int n_imgs)
+
+double aucROC_impl(double * img_src, double * groundtruth, const unsigned int height, const unsigned int width, const unsigned int n_imgs)
 {
 	roc_pair * responses_pairs = (roc_pair*)malloc(n_imgs * height * width * sizeof(roc_pair));
 	double * img_src_ptr = img_src;
-	char * groundtruth_ptr = groundtruth;
+	double * groundtruth_ptr = groundtruth;
 
 	double total_positive = 0.0;
 	for (unsigned int i = 0; i < n_imgs * height * width; i++, img_src_ptr++, groundtruth_ptr++)
@@ -140,7 +125,7 @@ static PyObject* aucROC(PyObject *self, PyObject *args)
 	npy_intp input_img_stride = input_img->strides[input_img->nd-1];
 	npy_intp groundtruth_stride = groundtruth->strides[groundtruth->nd-1];
 	
-	double auc_resp = aucROC_impl((double*)input_img_data, groundtruth_data, height, width, n_imgs);
+	double auc_resp = aucROC_impl((double*)input_img_data, (double*)groundtruth_data, height, width, n_imgs);
 
 	return Py_BuildValue("d", auc_resp);
 }
@@ -148,31 +133,11 @@ static PyObject* aucROC(PyObject *self, PyObject *args)
 
 
 
-
-/************************************************************************************************************
-* FUNCTION NAME: aucROCsavefile_impl
-*
-* PURPOSE: Compute the area under the ROC curve for the multiclass classifier 'img_src' and the 'groundtruth'.
-*
-* ARGUMENTS:
-* ARGUMENT                  TYPE                      I/O  DESCRIPTION
-* img_src                   double *                   I   Source multiclass classifier
-* groundtruth               char *                     I   Ground-truth
-* height                    const int                  I   Height of the source image
-* width                     const int                  I   Width of the source image
-* filename                  const char *               I   Name of the file where to save the 
-*                                                          ROC curve data (true and false positive fractions)
-*
-* RETURNS:
-* The area under the ROC curve copmputed with the trapezium method of integration, and the ROC curve data in
-* the specified filename
-*
-************************************************************************************************************/
-double aucROCsavefile_impl(double * img_src, char * groundtruth, const unsigned int height, const unsigned int width, const unsigned int n_imgs, const char * filename)
+double aucROCsavefile_impl(double * img_src, double * groundtruth, const unsigned int height, const unsigned int width, const unsigned int n_imgs, const char * filename)
 {
 	roc_pair * responses_pairs = (roc_pair*)malloc(n_imgs * height * width * sizeof(roc_pair));
 	double * img_src_ptr = img_src;
-	char * groundtruth_ptr = groundtruth;
+	double * groundtruth_ptr = groundtruth;
 
 	double total_positive = 0.0;
 	for (unsigned int i = 0; i < n_imgs * height * width; i++, img_src_ptr++, groundtruth_ptr++)
@@ -267,47 +232,28 @@ static PyObject* aucROCsavefile(PyObject *self, PyObject *args)
 	npy_intp input_img_stride = input_img->strides[input_img->nd-1];
 	npy_intp groundtruth_stride = groundtruth->strides[groundtruth->nd-1];
 	
-	double auc_resp = aucROCsavefile_impl((double*)input_img_data, groundtruth_data, height, width, n_imgs, roc_curve_filename);
+	double auc_resp = aucROCsavefile_impl((double*)input_img_data, (double*)groundtruth_data, height, width, n_imgs, roc_curve_filename);
 
 	return Py_BuildValue("d", auc_resp);
 }
 #endif
 
-
-
-
-/************************************************************************************************************
-* FUNCTION NAME: aucROCmasked_impl
-*
-* PURPOSE: Compute the area under the ROC curve for the multiclass classifier 'img_src' and the 'groundtruth',
-* only for the masked portion of the image.
-*
-* ARGUMENTS:
-* ARGUMENT                  TYPE                      I/O  DESCRIPTION
-* img_src                   double *                   I   Source multiclass classifier
-* groundtruth               char *                     I   Ground-truth
-* mask                      char *                     I   Field-of-view mask
-* height                    const int                  I   Height of the source image
-* width                     const int                  I   Width of the source image
-* filename                  const char *               I   Name of the file where to save the
-*                                                          ROC curve data (true and false positive fractions)
-*
-* RETURNS:
-* The area under the ROC curve copmputed with the trapezium method of integration.
-*
-************************************************************************************************************/
-double aucROCmasked_impl(double * img_src, char * groundtruth, char * mask, const unsigned int height, const unsigned int width, const unsigned int n_imgs)
+double aucROCmasked_impl(double * img_src, double * groundtruth, char * mask, const unsigned int height, const unsigned int width, const unsigned int n_imgs)
 {
 	roc_pair * responses_pairs = (roc_pair*)malloc(n_imgs * height * width * sizeof(roc_pair));
 	double * img_src_ptr = img_src;
-	char * groundtruth_ptr = groundtruth;
+	double * groundtruth_ptr = groundtruth;
 	char * mask_ptr = mask;
+
+DEBNUMMSG("n_imgs: %i, ", n_imgs);
+DEBNUMMSG("%ix", height);
+DEBNUMMSG("%i\n", width);
 
 	unsigned int active_portion = 0;
 	double total_positive = 0.0;
 	for (unsigned int i = 0; i < n_imgs * height * width; i++, img_src_ptr++, groundtruth_ptr++, mask_ptr++)
 	{
-		if (*mask_ptr > 0)
+		if ((int)*mask_ptr > 0)
 		{
 			(responses_pairs + active_portion)->classification_response = *img_src_ptr;
 			(responses_pairs + active_portion)->ground_truth_class = *groundtruth_ptr;
@@ -316,6 +262,7 @@ double aucROCmasked_impl(double * img_src, char * groundtruth, char * mask, cons
 			{
 				total_positive += 1.0;
 			}
+			
 			active_portion++;
 		}
 	}
@@ -354,6 +301,8 @@ double aucROCmasked_impl(double * img_src, char * groundtruth, char * mask, cons
 	}
 	
 	free(responses_pairs);
+
+DEBNUMMSG("Area under the ROC curve: %f\n", area_under_curve);
 
 	return area_under_curve * 0.5;
 }
@@ -396,7 +345,7 @@ static PyObject* aucROCmasked(PyObject *self, PyObject *args)
 	npy_intp groundtruth_stride = groundtruth->strides[groundtruth->nd-1];
 	npy_intp mask_stride = mask->strides[mask->nd-1];
 	
-	double auc_resp = aucROCmasked_impl((double*)input_img_data, groundtruth_data, mask_data, height, width, n_imgs);
+	double auc_resp = aucROCmasked_impl((double*)input_img_data, (double*)groundtruth_data, mask_data, height, width, n_imgs);
 
 	return Py_BuildValue("d", auc_resp);
 }
@@ -404,32 +353,11 @@ static PyObject* aucROCmasked(PyObject *self, PyObject *args)
 
 
 
-
-/************************************************************************************************************
-* FUNCTION NAME: aucROCmaskedsavefile_impl
-*
-* PURPOSE: Compute the area under the ROC curve for the multiclass classifier 'img_src' and the 'groundtruth',
-* only for the masked portion of the image.
-*
-* ARGUMENTS:
-* ARGUMENT                  TYPE                      I/O  DESCRIPTION
-* img_src                   double *                   I   Source multiclass classifier
-* groundtruth               char *                     I   Ground-truth
-* mask                      char *                     I   Field-of-view mask
-* height                    const int                  I   Height of the source image
-* width                     const int                  I   Width of the source image
-* filename                  const char *               I   Name of the file where to save the
-*                                                          ROC curve data (true and false positive fractions)
-*
-* RETURNS:
-* The area under the ROC curve copmputed with the trapezium method of integration.
-*
-************************************************************************************************************/
-double aucROCmaskedsavefile_impl(double * img_src, char * groundtruth, char * mask, const unsigned int height, const unsigned int width, const unsigned int n_imgs, const char * filename)
+double aucROCmaskedsavefile_impl(double * img_src, double * groundtruth, char * mask, const unsigned int height, const unsigned int width, const unsigned int n_imgs, const char * filename)
 {
 	roc_pair * responses_pairs = (roc_pair*)malloc(n_imgs * height * width * sizeof(roc_pair));
 	double * img_src_ptr = img_src;
-	char * groundtruth_ptr = groundtruth;
+	double * groundtruth_ptr = groundtruth;
 	char * mask_ptr = mask;
 
 	unsigned int active_portion = 0;
@@ -532,7 +460,7 @@ static PyObject* aucROCmaskedsavefile(PyObject *self, PyObject *args)
 	npy_intp groundtruth_stride = groundtruth->strides[groundtruth->nd-1];
 	npy_intp mask_stride = mask->strides[mask->nd-1];
 	
-	double auc_resp = aucROCmaskedsavefile_impl((double*)input_img_data, groundtruth_data, mask_data, height, width, n_imgs, roc_curve_filename);
+	double auc_resp = aucROCmaskedsavefile_impl((double*)input_img_data, (double*)groundtruth_data, mask_data, height, width, n_imgs, roc_curve_filename);
 
 	return Py_BuildValue("d", auc_resp);
 }
