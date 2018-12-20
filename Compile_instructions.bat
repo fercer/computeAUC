@@ -36,7 +36,7 @@ if "%1" == "python" (
     )
 )
 
-if version == "release" SET macros_definitions=%macros_definitions% /DNDEBUG
+if version == "release" SET macros_definitions=%macros_definitions% /DNDEBUG /O2
 
 cl /LD %macros_definitions% %required_include_paths% /Fo:build\computeAUCROC.o include\computeAUCROC.c %required_libs% /link /DLL /IMPLIB:.\lib\%libname% /out:.\lib\%dllname%
 
