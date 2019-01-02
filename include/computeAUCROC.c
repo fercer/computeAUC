@@ -99,7 +99,7 @@ static PyObject* aucROC(PyObject *self, PyObject *args)
 	PyArrayObject  *input_img;
 	PyArrayObject  *groundtruth;
 	
-	npy_intp height, width, n_imgs = 1;
+	npy_intp height, width, n_imgs = 1, n_channels = 1;
 	
 	/* Parse the input arguments to extract two numpy arrays: */
 	if (!PyArg_ParseTuple(args, "O!O!", &PyArray_Type, &input_img, &PyArray_Type, &groundtruth))
@@ -107,7 +107,14 @@ static PyObject* aucROC(PyObject *self, PyObject *args)
 		return NULL;
 	}
 	
-	if (input_img->nd > 2)
+	if (input_img->nd > 3)
+	{
+		n_imgs = input_img->dimensions[0];
+		n_channels = input_img->dimensions[1];
+		height = input_img->dimensions[2];
+		width = input_img->dimensions[3];		
+	}
+	else if (input_img->nd > 2)
 	{
 		n_imgs = input_img->dimensions[0];
 		height = input_img->dimensions[1];
@@ -206,7 +213,7 @@ static PyObject* aucROCsavefile(PyObject *self, PyObject *args)
 	PyArrayObject  *groundtruth;
 	const char * roc_curve_filename;
 	
-	npy_intp height, width, n_imgs = 1;
+	npy_intp height, width, n_imgs = 1, n_channels = 1;
 	
 	/* Parse the input arguments to extract two numpy arrays: */
 	if (!PyArg_ParseTuple(args, "O!O!s", &PyArray_Type, &input_img, &PyArray_Type, &groundtruth, &roc_curve_filename))
@@ -214,7 +221,14 @@ static PyObject* aucROCsavefile(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	if (input_img->nd > 2)
+	if (input_img->nd > 3)
+	{
+		n_imgs = input_img->dimensions[0];
+		n_channels = input_img->dimensions[1];
+		height = input_img->dimensions[2];
+		width = input_img->dimensions[3];		
+	}
+	else if (input_img->nd > 2)
 	{
 		n_imgs = input_img->dimensions[0];
 		height = input_img->dimensions[1];
@@ -237,6 +251,8 @@ static PyObject* aucROCsavefile(PyObject *self, PyObject *args)
 	return Py_BuildValue("d", auc_resp);
 }
 #endif
+
+
 
 double aucROCmasked_impl(double * img_src, double * groundtruth, char * mask, const unsigned int height, const unsigned int width, const unsigned int n_imgs)
 {
@@ -268,6 +284,10 @@ DEBNUMMSG("%i\n", width);
 	}
 
 	double total_negative = (double)active_portion - total_positive;
+
+DEBNUMMSG("active_portion: %i\n", active_portion);
+DEBNUMMSG("total_positive: %f\n", total_positive);
+DEBNUMMSG("total_negative: %f\n", total_negative);
 
 	qsort(responses_pairs, active_portion, sizeof(roc_pair), compROCpairs);
 	
@@ -317,7 +337,7 @@ static PyObject* aucROCmasked(PyObject *self, PyObject *args)
 	PyArrayObject *groundtruth;
 	PyArrayObject *mask;
 
-	npy_intp height, width, n_imgs = 1;
+	npy_intp height, width, n_imgs = 1, n_channels = 1;
 	
 	/* Parse the input arguments to extract two numpy arrays: */
 	if (!PyArg_ParseTuple(args, "O!O!O!", &PyArray_Type, &input_img, &PyArray_Type, &groundtruth, &PyArray_Type, &mask))
@@ -325,7 +345,14 @@ static PyObject* aucROCmasked(PyObject *self, PyObject *args)
 		return NULL;
 	}
 	
-	if (input_img->nd > 2)
+	if (input_img->nd > 3)
+	{
+		n_imgs = input_img->dimensions[0];
+		n_channels = input_img->dimensions[1];
+		height = input_img->dimensions[2];
+		width = input_img->dimensions[3];
+	}
+	else if (input_img->nd > 2)
 	{
 		n_imgs = input_img->dimensions[0];
 		height = input_img->dimensions[1];
@@ -432,7 +459,7 @@ static PyObject* aucROCmaskedsavefile(PyObject *self, PyObject *args)
 	PyArrayObject  *mask;
 	const char * roc_curve_filename;
 
-	npy_intp height, width, n_imgs = 1;
+	npy_intp height, width, n_imgs = 1, n_channels = 1;
 	
 	/* Parse the input arguments to extract two numpy arrays: */
 	if (!PyArg_ParseTuple(args, "O!O!O!s", &PyArray_Type, &input_img, &PyArray_Type, &groundtruth, &PyArray_Type, &mask, &roc_curve_filename))
@@ -440,7 +467,14 @@ static PyObject* aucROCmaskedsavefile(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	if (input_img->nd > 2)
+	if (input_img->nd > 3)
+	{
+		n_imgs = input_img->dimensions[0];
+		n_channels = input_img->dimensions[1];
+		height = input_img->dimensions[2];
+		width = input_img->dimensions[3];		
+	}
+	else if (input_img->nd > 2)
 	{
 		n_imgs = input_img->dimensions[0];
 		height = input_img->dimensions[1];
