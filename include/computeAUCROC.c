@@ -34,11 +34,11 @@ int compROCpairs(const void * pair_a_ptr, const void * pair_b_ptr)
 
 
 
-double aucROC_impl(double * img_src, double * groundtruth, const unsigned int height, const unsigned int width, const unsigned int n_imgs)
+double aucROC_impl(double * img_src, char * groundtruth, const unsigned int height, const unsigned int width, const unsigned int n_imgs)
 {
 	roc_pair * responses_pairs = (roc_pair*)malloc(n_imgs * height * width * sizeof(roc_pair));
 	double * img_src_ptr = img_src;
-	double * groundtruth_ptr = groundtruth;
+	char * groundtruth_ptr = groundtruth;
 
 	double total_positive = 0.0;
 	for (unsigned int i = 0; i < n_imgs * height * width; i++, img_src_ptr++, groundtruth_ptr++)
@@ -127,12 +127,12 @@ static PyObject* aucROC(PyObject *self, PyObject *args)
 	}
 	
 	char * input_img_data = input_img->data;
-	char * groundtruth_data = groundtruth->data;
+	unsigned char * groundtruth_data = groundtruth->data;
 		
 	npy_intp input_img_stride = input_img->strides[input_img->nd-1];
 	npy_intp groundtruth_stride = groundtruth->strides[groundtruth->nd-1];
 	
-	double auc_resp = aucROC_impl((double*)input_img_data, (double*)groundtruth_data, height, width, n_imgs);
+	double auc_resp = aucROC_impl((double*)input_img_data, groundtruth_data, height, width, n_imgs);
 
 	return Py_BuildValue("d", auc_resp);
 }
@@ -140,11 +140,11 @@ static PyObject* aucROC(PyObject *self, PyObject *args)
 
 
 
-double aucROCsavefile_impl(double * img_src, double * groundtruth, const unsigned int height, const unsigned int width, const unsigned int n_imgs, const char * filename)
+double aucROCsavefile_impl(double * img_src, unsigned char * groundtruth, const unsigned int height, const unsigned int width, const unsigned int n_imgs, const char * filename)
 {
 	roc_pair * responses_pairs = (roc_pair*)malloc(n_imgs * height * width * sizeof(roc_pair));
 	double * img_src_ptr = img_src;
-	double * groundtruth_ptr = groundtruth;
+	unsigned char * groundtruth_ptr = groundtruth;
 
 	double total_positive = 0.0;
 	for (unsigned int i = 0; i < n_imgs * height * width; i++, img_src_ptr++, groundtruth_ptr++)
@@ -241,12 +241,12 @@ static PyObject* aucROCsavefile(PyObject *self, PyObject *args)
 	}
 	
 	char * input_img_data = input_img->data;
-	char * groundtruth_data = groundtruth->data;
+	unsigned char * groundtruth_data = groundtruth->data;
 		
 	npy_intp input_img_stride = input_img->strides[input_img->nd-1];
 	npy_intp groundtruth_stride = groundtruth->strides[groundtruth->nd-1];
 	
-	double auc_resp = aucROCsavefile_impl((double*)input_img_data, (double*)groundtruth_data, height, width, n_imgs, roc_curve_filename);
+	double auc_resp = aucROCsavefile_impl((double*)input_img_data, groundtruth_data, height, width, n_imgs, roc_curve_filename);
 
 	return Py_BuildValue("d", auc_resp);
 }
@@ -254,12 +254,12 @@ static PyObject* aucROCsavefile(PyObject *self, PyObject *args)
 
 
 
-double aucROCmasked_impl(double * img_src, double * groundtruth, char * mask, const unsigned int height, const unsigned int width, const unsigned int n_imgs)
+double aucROCmasked_impl(double * img_src, unsigned char * groundtruth, unsigned char * mask, const unsigned int height, const unsigned int width, const unsigned int n_imgs)
 {
 	roc_pair * responses_pairs = (roc_pair*)malloc(n_imgs * height * width * sizeof(roc_pair));
 	double * img_src_ptr = img_src;
-	double * groundtruth_ptr = groundtruth;
-	char * mask_ptr = mask;
+	unsigned char * groundtruth_ptr = groundtruth;
+	unsigned char * mask_ptr = mask;
 
 DEBNUMMSG("n_imgs: %i, ", n_imgs);
 DEBNUMMSG("%ix", height);
@@ -365,14 +365,14 @@ static PyObject* aucROCmasked(PyObject *self, PyObject *args)
 	}
 	
 	char * input_img_data = input_img->data;
-	char * groundtruth_data = groundtruth->data;
-	char * mask_data = mask->data;
+	unsigned char * groundtruth_data = groundtruth->data;
+	unsigned char * mask_data = mask->data;
 		
 	npy_intp input_img_stride = input_img->strides[input_img->nd-1];
 	npy_intp groundtruth_stride = groundtruth->strides[groundtruth->nd-1];
 	npy_intp mask_stride = mask->strides[mask->nd-1];
 	
-	double auc_resp = aucROCmasked_impl((double*)input_img_data, (double*)groundtruth_data, mask_data, height, width, n_imgs);
+	double auc_resp = aucROCmasked_impl((double*)input_img_data, groundtruth_data, mask_data, height, width, n_imgs);
 
 	return Py_BuildValue("d", auc_resp);
 }
@@ -380,12 +380,12 @@ static PyObject* aucROCmasked(PyObject *self, PyObject *args)
 
 
 
-double aucROCmaskedsavefile_impl(double * img_src, double * groundtruth, char * mask, const unsigned int height, const unsigned int width, const unsigned int n_imgs, const char * filename)
+double aucROCmaskedsavefile_impl(double * img_src, unsigned char * groundtruth, unsigned char * mask, const unsigned int height, const unsigned int width, const unsigned int n_imgs, const char * filename)
 {
 	roc_pair * responses_pairs = (roc_pair*)malloc(n_imgs * height * width * sizeof(roc_pair));
 	double * img_src_ptr = img_src;
-	double * groundtruth_ptr = groundtruth;
-	char * mask_ptr = mask;
+	unsigned char * groundtruth_ptr = groundtruth;
+	unsigned char * mask_ptr = mask;
 
 	unsigned int active_portion = 0;
 	double total_positive = 0.0;
@@ -487,14 +487,14 @@ static PyObject* aucROCmaskedsavefile(PyObject *self, PyObject *args)
 	}
 	
 	char * input_img_data = input_img->data;
-	char * groundtruth_data = groundtruth->data;
-	char * mask_data = mask->data;
+	unsigned char * groundtruth_data = groundtruth->data;
+	unsigned char * mask_data = mask->data;
 		
 	npy_intp input_img_stride = input_img->strides[input_img->nd-1];
 	npy_intp groundtruth_stride = groundtruth->strides[groundtruth->nd-1];
 	npy_intp mask_stride = mask->strides[mask->nd-1];
 	
-	double auc_resp = aucROCmaskedsavefile_impl((double*)input_img_data, (double*)groundtruth_data, mask_data, height, width, n_imgs, roc_curve_filename);
+	double auc_resp = aucROCmaskedsavefile_impl((double*)input_img_data, groundtruth_data, mask_data, height, width, n_imgs, roc_curve_filename);
 
 	return Py_BuildValue("d", auc_resp);
 }

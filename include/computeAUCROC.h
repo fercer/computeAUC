@@ -71,10 +71,10 @@ typedef struct roc_pair
 
 int compROCpairs(const void * pair_a_ptr, const void * pair_b_ptr);
 
-double COMPUTEAUCROC_DLL_PUBLIC aucROC_impl(double * img_src, double * groundtruth, const unsigned int height, const unsigned int width, const unsigned int n_imgs);
-double COMPUTEAUCROC_DLL_PUBLIC aucROCsavefile_impl(double * img_src, double * groundtruth, const unsigned int height, const unsigned int width, const unsigned int n_imgs, const char * filename);
-double COMPUTEAUCROC_DLL_PUBLIC aucROCmasked_impl(double * img_src, double * groundtruth, char * mask, const unsigned int height, const unsigned int width, const unsigned int n_imgs);
-double COMPUTEAUCROC_DLL_PUBLIC aucROCmaskedsavefile_impl(double * img_src, double * groundtruth, char * mask, const unsigned int height, const unsigned int width, const unsigned int n_imgs, const char * filename);
+double COMPUTEAUCROC_DLL_PUBLIC aucROC_impl(double * img_src, unsigned char * groundtruth, const unsigned int height, const unsigned int width, const unsigned int n_imgs);
+double COMPUTEAUCROC_DLL_PUBLIC aucROCsavefile_impl(double * img_src, unsigned char * groundtruth, const unsigned int height, const unsigned int width, const unsigned int n_imgs, const char * filename);
+double COMPUTEAUCROC_DLL_PUBLIC aucROCmasked_impl(double * img_src, unsigned char * groundtruth, unsigned char * mask, const unsigned int height, const unsigned int width, const unsigned int n_imgs);
+double COMPUTEAUCROC_DLL_PUBLIC aucROCmaskedsavefile_impl(double * img_src, unsigned char * groundtruth, unsigned char * mask, const unsigned int height, const unsigned int width, const unsigned int n_imgs, const char * filename);
 
 #ifdef BUILDING_PYTHON_MODULE
 static PyObject* aucROC(PyObject *self, PyObject *args);
