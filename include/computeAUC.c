@@ -3,7 +3,7 @@ CENTRO DE INVESTIGACION EN MATEMATICAS
 DOCTORADO EN CIENCIAS DE LA COMPUTACION
 FERNANDO CERVANTES SANCHEZ
 
-FILE NAME : computeAUCROC.cpp
+FILE NAME : computeAUC.cpp
 
 PURPOSE : Defines the python extensions to compute the area under the ROC curve.
 
@@ -14,7 +14,7 @@ None----       ----------
 ABNORMAL TERMINATION CONDITIONS, ERROR AND WARNING MESSAGES :
 None
 ************************************************************************************************************************************/
-#include "computeAUCROC.h"
+#include "computeAUC.h"
 
 
 int compROCpairs(const void * pair_a_ptr, const void * pair_b_ptr)
@@ -23,12 +23,12 @@ int compROCpairs(const void * pair_a_ptr, const void * pair_b_ptr)
 	{
 		return -1;
 	}
-	else if (((roc_pair*)pair_a_ptr)->classification_response == ((roc_pair*)pair_b_ptr)->classification_response)
+	else if (((roc_pair*)pair_a_ptr)->classification_response > ((roc_pair*)pair_b_ptr)->classification_response)
 	{
-		return 0;
+		return 1;
 	}
 
-	return 1;
+	return 0;
 }
 
 
@@ -118,7 +118,7 @@ static PyObject* aucROC(PyObject *self, PyObject *args)
 	{
 		n_imgs = input_img->dimensions[0];
 		height = input_img->dimensions[1];
-		width = input_img->dimensions[2];		
+		width = input_img->dimensions[2];
 	}
 	else
 	{
@@ -503,7 +503,7 @@ static PyObject* aucROCmaskedsavefile(PyObject *self, PyObject *args)
 
 
 #ifdef BUILDING_PYTHON_MODULE
-static PyMethodDef computeAUCROC_methods[] = {
+static PyMethodDef computeAUC_methods[] = {
 	{ "aucROC",	aucROC, METH_VARARGS, "compute area under the ROC curve" },
 	{ "aucROCsavefile",	aucROCsavefile, METH_VARARGS, "compute area under the ROC curve and save the true and false positive fractions" },
 	{ "aucROCmasked",	aucROCmasked, METH_VARARGS, "compute area under the ROC curve of the image FOV" },
@@ -517,10 +517,10 @@ static PyMethodDef computeAUCROC_methods[] = {
 #ifdef BUILDING_PYTHON_MODULE
 static struct PyModuleDef moduledef = {
 	PyModuleDef_HEAD_INIT,
-	"computeAUCROC",
+	"computeAUC",
 	NULL,
 	-1,
-	computeAUCROC_methods,
+	computeAUC_methods,
 	NULL,
 	NULL,
 	NULL,
@@ -531,7 +531,7 @@ static struct PyModuleDef moduledef = {
 
 
 #ifdef BUILDING_PYTHON_MODULE
-PyMODINIT_FUNC PyInit_computeAUCROC(void)
+PyMODINIT_FUNC PyInit_computeAUC(void)
 {
 	PyObject *m;
 	m = PyModule_Create(&moduledef);
